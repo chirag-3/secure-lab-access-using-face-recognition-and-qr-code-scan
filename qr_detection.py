@@ -119,15 +119,10 @@ def detect_qr(correct_str):
 
     cam_bck_image = PhotoImage(
         file=relative_to_assets("image_1.png"))
-    # image_1 = canvas.create_image(
-    #     918.0,
-    #     450.0,
-    #     image=cam_bck_image
-    # )
 
 
     cam_frame = Frame(window,width=1009,height=859)
-    # cam_frame = Frame(window_face_scan,width=109,height=89)
+
 
     cam_frame.pack_propagate(0)
     cam_frame.place(x = 414,y = 21)

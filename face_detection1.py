@@ -9,12 +9,18 @@ import face_recognition
 import sqlite3
 import numpy as np
 import qr_detection
-
-
+from tkinter import messagebox
+import homepage as hp
 
 def go_detect_qr(current_window,correct_str):
-    current_window.destroy()
-    qr_detection.detect_qr(correct_str)
+    global authorized
+    if authorized==0:
+        messagebox.showerror('error','the user is registered but has not been authorized by the admin')
+        current_window.destroy()
+        hp.homepage()
+    else:
+        current_window.destroy()
+        qr_detection.detect_qr(correct_str)
 
 def retry(cam,window_detect_face):
     print(" TRY AGIAN CALLED")
@@ -84,7 +90,6 @@ def detect_face():
         fill="#000000",
         font=("Poppins SemiBold", 25 * -1)
     )
-
     canvas.create_text(
         41.0,
         175.0,
@@ -93,7 +98,6 @@ def detect_face():
         fill="#000000",
         font=("Poppins SemiBold", 45 * -1)
     )
-
     canvas.create_text(
         40.0,
         358.0,
@@ -103,6 +107,8 @@ def detect_face():
         font=("Poppins SemiBold", 26 * -1)
     )
 
+
+
     global cam_bck_image
     global ty_again_button_image
     global go_ahead_green_button_image
@@ -110,20 +116,12 @@ def detect_face():
     
     cam_bck_image = PhotoImage(
         file=relative_to_assets("image_1.png"))
-    # image_1 = canvas.create_image(
-    #     918.0,
-    #     450.0,
-    #     image=cam_bck_image
-    # )
-
     cam_frame = Frame(window_detect_face,width=1009,height=859)
-    # cam_frame = Frame(window_face_scan,width=109,height=89)
 
     cam_frame.pack_propagate(0)
     cam_frame.place(x = 414,y = 21)
 
     cam_label = Label(cam_frame,width=700,height=394)
-    # cam_label.place(x = 0,y = 0)
     cam_label.place(relx = 0.5,rely = 0.5,anchor=CENTER)
 
     bg_img = Label(cam_frame, image=cam_bck_image)
@@ -180,14 +178,12 @@ def detect_face():
         command=lambda: go_detect_qr(window_detect_face,correct_str),
         relief="flat"
     )
-
     go_ahead_green_button.place(
         x=93.0,
         y=585.0,
         width=212.0,
         height=53.0
     )
-
     go_ahead_green_button.lower()
 
     name_label = Label(
@@ -196,15 +192,11 @@ def detect_face():
         
         font=("Poppins SemiBold", 26 * -1)
     )
-    # name_label = Label(window_detect_face,
-    #                   text="NOT RECOGNISED",
-    #                   bg="yellow",
-    #                   fg="red")
     name_label.place(x = 40.0,y = 480.0)
     
     
 
-    db = sqlite3.connect("data/user_data.sqlite")
+    db = sqlite3.connect("app_data/user_data.sqlite")
     c = db.cursor()
 
 
@@ -216,7 +208,8 @@ def detect_face():
     encodings = face_recognition.face_encodings(rgb, boxes)
     names = []
     name = None
-
+    global authorized
+    authorized = 0
     for encoding in encodings:
             # retrieve all stored face encodings from database
             c.execute('SELECT * FROM USERS')
@@ -225,6 +218,7 @@ def detect_face():
             names = [row[1] for row in rows]
             # indices = [row[0] for row in rows]
             strs = [row[6] for row in rows]
+            auth_values = [row[7] for row in rows]
             # compute distances between current face encoding and stored encodings
             distances = face_recognition.face_distance(stored_encodings, encoding)
             min_idx = np.argmin(distances)
@@ -235,7 +229,8 @@ def detect_face():
                 name = names[min_idx]
                 name_label['text'] = name
                 # idx = indices[min_idx]
-                correct_str = strs[min_idx]            
+                correct_str = strs[min_idx]
+                authorized = auth_values[min_idx]             
             else:
                 name = 'unknown'
 
