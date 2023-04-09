@@ -25,11 +25,12 @@ def open_homepage():
 def register_user(qr_string,details):
     # pass
     global window_qr_code
-    db = sqlite3.connect("data/user_data.sqlite")
+    db = sqlite3.connect("app_data/user_data.sqlite")
     cur = db.cursor()
 
     ##Creating the table if it does not already exist
-    create_table_query = "CREATE TABLE IF NOT EXISTS USERS (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,email TEXT,phone BIGINT,employee_id TEXT, encoding BLOB,qr_string TEXT)"
+    create_table_query = '''CREATE TABLE IF NOT EXISTS USERS (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,email TEXT,phone BIGINT,employee_id TEXT,
+                            encoding BLOB,qr_string TEXT,authorized INTEGER)'''
     cur.execute(create_table_query)
     
 
@@ -39,9 +40,10 @@ def register_user(qr_string,details):
     phone = details[2]
     employee_id = details[3]
     encoding = details[4]
+    auth = 0
     # insert_query = f"INSERT INTO USER (name,email,phone,employee_id,encoding,qr_string) VALUES ({name},{email},{phone},{employee_id},{encoding.tobytes()},{qr_string}) "
-    cur.execute("INSERT INTO USERS (name,email,phone,employee_id,encoding,qr_string) VALUES (?,?,?,?,?,?)",
-                (name,email,phone,employee_id,encoding.tobytes(),qr_string))
+    cur.execute("INSERT INTO USERS (name,email,phone,employee_id,encoding,qr_string,authorized) VALUES (?,?,?,?,?,?,?)",
+                (name,email,phone,employee_id,encoding.tobytes(),qr_string,auth))
     db.commit()
     window_qr_code.destroy()
 
