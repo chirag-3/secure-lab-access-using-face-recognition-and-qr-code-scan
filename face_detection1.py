@@ -11,19 +11,24 @@ import numpy as np
 import qr_detection
 from tkinter import messagebox
 import homepage as hp
+from datetime import datetime
 
-def go_detect_qr(current_window,correct_str):
+def go_detect_qr(current_window,correct_str,name):
     global authorized
     if authorized==0:
         messagebox.showerror('error','the user is registered but has not been authorized by the admin')
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        with open("login_log.txt",'a') as f:
+            f.write(f"{name} had face authenticated but was not authorized to enter "+dt_string+"\n")
         current_window.destroy()
         hp.homepage()
     else:
         current_window.destroy()
-        qr_detection.detect_qr(correct_str)
+        qr_detection.detect_qr(correct_str,name)
 
 def retry(cam,window_detect_face):
-    print(" TRY AGIAN CALLED")
+    # print(" TRY AGIAN CALLED")
     cam.release()
     cv2.destroyAllWindows()
     window_detect_face.destroy()
@@ -58,7 +63,7 @@ def detect_face():
 
     idx = None
     correct_str = None
-
+    name = None
     OUTPUT_PATH = Path(__file__).parent
     ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame9")
 
@@ -175,7 +180,7 @@ def detect_face():
         state="disabled",
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: go_detect_qr(window_detect_face,correct_str),
+        command=lambda: go_detect_qr(window_detect_face,correct_str,name),
         relief="flat"
     )
     go_ahead_green_button.place(
@@ -207,7 +212,7 @@ def detect_face():
     boxes = face_recognition.face_locations(rgb, model='hog')
     encodings = face_recognition.face_encodings(rgb, boxes)
     names = []
-    name = None
+    # name = None
     global authorized
     authorized = 0
     for encoding in encodings:
@@ -230,9 +235,17 @@ def detect_face():
                 name_label['text'] = name
                 # idx = indices[min_idx]
                 correct_str = strs[min_idx]
-                authorized = auth_values[min_idx]             
+                authorized = auth_values[min_idx]
+                now = datetime.now()
+                dt_string = now.strftime("%d/%m/%Y %H:%M:%S")  
+                with open('login_log.txt','a') as f:
+                    f.write(f"{name} tried to login got face authenticated successfully "+dt_string+"\n")           
             else:
                 name = 'unknown'
+                now = datetime.now()
+                dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+                with open("login_log.txt",'a') as f:
+                    f.write("unknown person tried to login "+dt_string+"\n")
 
 
 
@@ -241,7 +254,7 @@ def detect_face():
             # cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
             # cv2.putText(frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
 
-            print(" person is recogonized as ",name)    
+            # print(" person is recogonized as ",name)    
     if name is not None and name!='unknown':
         go_ahead_red_button.lower()
         go_ahead_green_button.lift()

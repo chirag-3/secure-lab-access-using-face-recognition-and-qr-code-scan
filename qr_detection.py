@@ -8,6 +8,7 @@ from tkinter import *
 import cv2
 import access_granted
 import access_denied
+from datetime import datetime
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame6")
@@ -32,11 +33,16 @@ def update_cam(cam_label,window,cam,correct_str):
     global points
     global decoded
     global start_time
+    global name
     if decoded=="":
-        print(" ================== ",decoded)
+        # print(" ================== ",decoded)
         current_time = time.time()
         if (current_time-start_time)>25:
             cam.release()
+            with open("login_log.txt",'a') as f:
+                now = datetime.now()
+                dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+                f.write(f"{name} has been denied entry due to qr detection timeout"+dt_string+"\n")
             cv2.destroyAllWindows()
             window.destroy()
             access_denied.deny()
@@ -54,17 +60,27 @@ def update_cam(cam_label,window,cam,correct_str):
         cv2.destroyAllWindows()
         window.destroy()
         # if correct_str == decoded:
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        with open("login_log.txt",'a') as f:
+            f.write(f"{name} has been granted entry "+dt_string+"\n")
         access_granted.grant()
         # else:
     else :
         cam.release()
         cv2.destroyAllWindows()
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        with open("login_log.txt",'a') as f:
+            f.write(f"{name} has been denied entry due to incorrect QR "+dt_string+"\n")
         window.destroy()
         access_denied.deny()
 
 
-def detect_qr(correct_str):
+def detect_qr(correct_str,Name):
     global start_time 
+    global name
+    name = Name
     start_time = time.time()
     window = Toplevel()
 
@@ -148,7 +164,7 @@ def detect_qr(correct_str):
     qrCodeDetector = cv2.QRCodeDetector()
     decoded, points, _ = qrCodeDetector.detectAndDecode(gray)
     if decoded=="":
-        print("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+        # print("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
         if ret:
             img = get_image()
             cam_label.config(image=img)
@@ -157,12 +173,20 @@ def detect_qr(correct_str):
     elif decoded==correct_str:
         cam.release()
         cv2.destroyAllWindows()
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        with open("login_log.txt",'a') as f:
+            f.write(f"{name} has been granted entry "+dt_string+"\n")
         window.destroy()
         access_granted.grant()
         # else:
     else :
         cam.release()
         cv2.destroyAllWindows()
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        with open("login_log.txt",'a') as f:
+            f.write(f"{name} has been denied entry due to incorrect QR "+dt_string+"\n")
         window.destroy()
         access_denied.deny()
         
