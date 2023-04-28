@@ -28,17 +28,17 @@ def login_admin(details):
     uname = details[1]
     passw = details[0]
 
-    print(uname," ====== ",passw)
+    # print(uname," ====== ",passw)
     names = [row[1] for row in rows]
     passwords = [row[2] for row in rows]
 
     if uname not in names:
-        print("hellllloooo")
+        # print("hellllloooo")
         messagebox.showerror('error','username or password incorrect')
         return
     else:
         idx = names.index(uname)
-        print("noooooooooooooooooooooooo")
+        # print("noooooooooooooooooooooooo")
         if passw!=passwords[idx]:
             messagebox.showerror('error','username or password is incorrect')
             return

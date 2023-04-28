@@ -161,7 +161,7 @@ def detect_face():
         # state="disabled",
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("go_ahead_red_button clicked"),
+        command=lambda: print(""),
         relief="flat"
     )
 

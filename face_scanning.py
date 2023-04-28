@@ -35,7 +35,7 @@ def capture(cam,details):
     # compute face encoding
     filtered_face = cv2.bilateralFilter(face, 9, 75, 75)
     encoding = face_recognition.face_encodings(filtered_face)[0]
-    print(" type of the encodiung is ",type(encoding))
+    # print(" type of the encodiung is ",type(encoding))
     details.append(encoding)
     window_face_scan.destroy()
 
